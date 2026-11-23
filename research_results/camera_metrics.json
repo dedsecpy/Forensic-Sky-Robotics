@@ -1,0 +1,52 @@
+{
+  "clip_review": {
+    "events": 21,
+    "same_shot_events": 21,
+    "early_alerts": 1,
+    "same_shot_alerts": 1,
+    "target_within_10pct": 1,
+    "median_target_error_diagonal": 0.06201032778953032,
+    "max_speed": 3.999228630430666,
+    "max_accel": 3.999999995257498,
+    "planned": {
+      "framed": 18,
+      "framed_clear": 17,
+      "median_angle_deg": 22.505704167480435
+    },
+    "fixed": {
+      "framed": 21,
+      "framed_clear": 20,
+      "median_angle_deg": 17.30161793378119
+    },
+    "survey": {
+      "framed": 18,
+      "framed_clear": 17,
+      "median_angle_deg": 22.505704167480435
+    }
+  },
+  "final_review": {
+    "events": 4,
+    "same_shot_events": 3,
+    "early_alerts": 0,
+    "same_shot_alerts": 0,
+    "target_within_10pct": 0,
+    "median_target_error_diagonal": null,
+    "max_speed": 6.999999995764385,
+    "max_accel": 3.9999999971386497,
+    "planned": {
+      "framed": 3,
+      "framed_clear": 3,
+      "median_angle_deg": 26.980261817149447
+    },
+    "fixed": {
+      "framed": 2,
+      "framed_clear": 2,
+      "median_angle_deg": 31.610409051905634
+    },
+    "survey": {
+      "framed": 3,
+      "framed_clear": 3,
+      "median_angle_deg": 26.980261817149447
+    }
+  }
+}

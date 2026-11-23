@@ -1,0 +1,8 @@
+{
+  "selected": "logistic",
+  "graph_validation_AP": 0.023816596055985642,
+  "graph_threshold": 0.08978641778230667,
+  "graph_test_AP": 0.02345552044509952,
+  "graph_test_precision": 0.022983613534794636,
+  "graph_test_recall": 0.4576271186440678
+}

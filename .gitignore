@@ -1,0 +1,41 @@
+# === Datasets (download separately; not shipped on GitHub) ===
+datasets/*
+!datasets/README.md
+
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# === Virtual environment ===
+.venv/
+venv/
+ENV/
+
+# === Editor / OS ===
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Local demo outputs ===
+runs/*/
+!runs/.gitkeep
+
+# === Temp / probe scripts ===
+_*.py
+
+# === Hugging Face / download caches anywhere ===
+**/.cache/
+**/.huggingface/
+
+# Nested StatsBomb open-data clone (use upstream GitHub instead)
+prepared/statsbomb_repo/
+
+

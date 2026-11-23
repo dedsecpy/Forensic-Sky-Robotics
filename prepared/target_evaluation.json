@@ -1,0 +1,14 @@
+{
+  "validation": {
+    "scenes": 431,
+    "top2_location_hit": 0.27610208816705334,
+    "closest_pair_baseline": 0.3248259860788863,
+    "median_distance_m": 6.063516998463057
+  },
+  "test": {
+    "scenes": 364,
+    "top2_location_hit": 0.2692307692307692,
+    "closest_pair_baseline": 0.260989010989011,
+    "median_distance_m": 6.936466660830733
+  }
+}

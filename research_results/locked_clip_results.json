@@ -1,0 +1,38 @@
+{
+  "note": "Locked project results only. Earlier exploratory runs are out of scope.",
+  "split": {
+    "train": 351,
+    "val": 98,
+    "test": 95,
+    "test_foul": 45,
+    "test_dive": 50
+  },
+  "step_1_pre_finetune": {
+    "selected": "boosted-deep",
+    "cutoff_s": 1.0,
+    "threshold": 0.27137054123788495,
+    "test": {
+      "accuracy": 0.631578947368421,
+      "balanced_accuracy": 0.6333333333333333,
+      "precision": 0.6,
+      "recall": 0.6666666666666666,
+      "F1": 0.631578947368421,
+      "AP": 0.6375562913870219,
+      "AUROC": 0.676
+    }
+  },
+  "step_2_final_finetune": {
+    "selected": "soft-ensemble",
+    "cutoff_s": 1.0,
+    "threshold": 0.32824974153891656,
+    "test": {
+      "accuracy": 0.6421052631578947,
+      "balanced_accuracy": 0.6455555555555555,
+      "precision": 0.6037735849056604,
+      "recall": 0.7111111111111111,
+      "F1": 0.6530612244897959,
+      "AP": 0.6498032786404762,
+      "AUROC": 0.6711111111111111
+    }
+  }
+}

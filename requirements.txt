@@ -1,0 +1,15 @@
+mediapipe==1.2.3
+opencv-contrib-python==5.1.0.95
+onnxruntime==1.32.0
+scikit-learn==1.9.1
+scipy==1.17.1
+numpy==2.4.6
+requests==2.34.2
+pillow==13.0.0
+joblib==1.6.0
+torch==2.15.0
+catboost==1.2.10
+openvino==2026.4.1
+tesserocr==2.13.0
+matplotlib==3.11.2
+

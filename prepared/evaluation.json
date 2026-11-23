@@ -1,0 +1,38 @@
+{
+  "source": "StatsBomb 360 event snapshots; 0.5 to 2 seconds before recorded foul",
+  "selected": "logistic",
+  "validation_AP": {
+    "logistic": 0.02942680402361447,
+    "boosted trees": 0.027090017601111037
+  },
+  "threshold": 0.03117878690807698,
+  "split_counts": {
+    "train": {
+      "examples": 42840,
+      "positives": 678
+    },
+    "validation": {
+      "examples": 16851,
+      "positives": 275
+    },
+    "test": {
+      "examples": 14597,
+      "positives": 236
+    }
+  },
+  "test_average_precision": 0.022470261294602768,
+  "test_prevalence": 0.016167705692950608,
+  "test_precision": 0.020202020202020204,
+  "test_recall": 0.06779661016949153,
+  "test_confusion_matrix": [
+    [
+      13585,
+      776
+    ],
+    [
+      220,
+      16
+    ]
+  ],
+  "statsbomb_revision": "4b73468fc5b0f1950f9f66fada70ad3a4f9327cb"
+}

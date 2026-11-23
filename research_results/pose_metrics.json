@@ -1,0 +1,74 @@
+{
+  "1": {
+    "sequence": "KTH player 2 sequence 1",
+    "images": 642,
+    "frames": 214,
+    "views": 3,
+    "joints": 12,
+    "matched_boxes_at_IoU_030": 641,
+    "mean_reference_reprojection_px": 6.301867176872022,
+    "annotated_crop": {
+      "returned": 609,
+      "coverage": 0.9485981308411215,
+      "PCK20_including_misses": 0.766095534787124,
+      "torso_MPJPE": 0.32061731120703396,
+      "torso_PA_MPJPE": 0.20257231490650668,
+      "PCK20_torso": 0.8076081007115489,
+      "mean_2d_px": 22.8723915805276
+    },
+    "wide_only": {
+      "returned": 1,
+      "coverage": 0.001557632398753894,
+      "PCK20_including_misses": 0.0,
+      "torso_MPJPE": 0.8315162006981808,
+      "torso_PA_MPJPE": 0.5351980535671075,
+      "PCK20_torso": 0.0,
+      "mean_2d_px": 89.81524944310515
+    },
+    "pipeline": {
+      "returned": 613,
+      "coverage": 0.9548286604361371,
+      "PCK20_including_misses": 0.7710280373831776,
+      "torso_MPJPE": 0.3285878696400924,
+      "torso_PA_MPJPE": 0.20318313999662374,
+      "PCK20_torso": 0.8075040783034256,
+      "mean_2d_px": 22.583537138476828
+    }
+  },
+  "2": {
+    "sequence": "KTH player 2 sequence 2",
+    "images": 690,
+    "frames": 230,
+    "views": 3,
+    "joints": 12,
+    "matched_boxes_at_IoU_030": 628,
+    "mean_reference_reprojection_px": 4.027246485468257,
+    "annotated_crop": {
+      "returned": 547,
+      "coverage": 0.7927536231884058,
+      "PCK20_including_misses": 0.35422705314009656,
+      "torso_MPJPE": 0.629039888918522,
+      "torso_PA_MPJPE": 0.3326215325542576,
+      "PCK20_torso": 0.44683120048750763,
+      "mean_2d_px": 78.2023217481776
+    },
+    "wide_only": {
+      "returned": 20,
+      "coverage": 0.028985507246376812,
+      "PCK20_including_misses": 0.006884057971014493,
+      "torso_MPJPE": 0.8140669697488667,
+      "torso_PA_MPJPE": 0.5021475960070833,
+      "PCK20_torso": 0.2375,
+      "mean_2d_px": 73.03303327828988
+    },
+    "pipeline": {
+      "returned": 510,
+      "coverage": 0.7391304347826086,
+      "PCK20_including_misses": 0.3455314009661838,
+      "torso_MPJPE": 0.5673599062349002,
+      "torso_PA_MPJPE": 0.30482335008705,
+      "PCK20_torso": 0.4674836601307189,
+      "mean_2d_px": 71.61485294984779
+    }
+  }
+}
