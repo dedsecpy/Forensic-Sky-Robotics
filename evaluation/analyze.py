@@ -88,7 +88,7 @@ def analyze(clip, hz=HZ, calibration=None, progress=print):
                 close=close_tracker.update(scout.close_players(im),t,im.shape)
                 display_players=combine(players,close)
                 score,pair=controller.score(t,players)
-                onset,_=controller.alarm.step(t,score if score is not None else 0.)
+                onset,alarm_hold=controller.alarm.step(t,score if score is not None else 0.)
                 pair=controller.target.step(t,players,pair,onset)
                 alert=bool(pair)
                 ids={p['id'] for p in pair} if alert else set()
@@ -131,12 +131,25 @@ def analyze(clip, hz=HZ, calibration=None, progress=print):
                 blocked=[blockage(camera.xyz,np.r_[p['xy'],1.],obs) for p in pair] if alert else []
                 fixed=[blockage(np.array([0.,-9.,13.]),np.r_[p['xy'],1.],obs) for p in pair] if alert else []
                 if alert: hits.append([float(np.mean(np.array(blocked)==0)),float(np.mean(np.array(fixed)==0))])
-                rec=dict(time=t,score=score,alert=alert,alarm_onset=bool(onset),target_ids=sorted(ids),camera_xyz=camera.xyz.tolist(),look_at=camera.aim.tolist(),players=[
+                cam_speed=float(np.linalg.norm(camera.v))
+                rec=dict(time=t,score=score,alert=alert,alarm_onset=bool(onset),alarm_hold=bool(alarm_hold),
+                         threshold=float(threshold),target_ids=sorted(ids),
+                         camera_xyz=camera.xyz.tolist(),camera_dest=camera.dest.tolist(),
+                         camera_speed=cam_speed,look_at=camera.aim.tolist(),players=[
                     dict(id=p['id'],forecast_track=p['id']<1000000,xy=p['xy'].tolist(),future_xy=p['future'].tolist(),leg_motion_mps=p.get('leg_motion'),joints_2d=p['joints'].tolist(),hip_relative_3d=bodies[p['id']].tolist() if p['id'] in bodies else None) for p in display_players])
                 log.write(json.dumps(rec)+'\n')
                 if onset and score is not None and (peak is None or score>peak[0]): peak=(score,t)
                 frames+=1; people+=len(display_players); pose3+=len(bodies); alerts+=alert
-                progress(f'{min(n+1,frame_count)}/{frame_count} frames  |  {state}')
+                ui=dict(time=t,score=score,alert=alert,alarm_onset=bool(onset),alarm_hold=bool(alarm_hold),
+                        threshold=float(threshold),target_ids=sorted(ids),
+                        camera_xyz=camera.xyz.tolist(),camera_dest=camera.dest.tolist(),
+                        camera_speed=cam_speed,look_at=camera.aim.tolist(),
+                        players_xy=[p['xy'].tolist() for p in display_players[:16]],
+                        pair_xy=[p['xy'].tolist() for p in pair] if pair else [])
+                try:
+                    progress(f'{min(n+1,frame_count)}/{frame_count} frames  |  {state}',telemetry=ui,frame=panel)
+                except TypeError:
+                    progress(f'{min(n+1,frame_count)}/{frame_count} frames  |  {state}')
                 n+=1
     finally:
         cap.release(); writer.release(); pose.close()

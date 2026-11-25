@@ -13,7 +13,7 @@ Pose- and motion-based football challenge analysis: classify foul vs dive intera
 | **Report** | [`report.md`](report.md) |
 | **Plots** | [`research_results/plots/`](research_results/plots/) |
 
-> Raw `datasets/` videos are **not** in this repository (see [`datasets/README.md`](datasets/README.md)). Code, models, prepared indexes/caches, and locked metrics **are** included.
+> Raw training `datasets/` are **not** in this repository (see [`datasets/README.md`](datasets/README.md)). Code, models, prepared indexes/caches, locked metrics, and **five `demo_samples/` videos** for an immediate GUI demo **are** included.
 
 ---
 
@@ -161,7 +161,7 @@ Architecture diagrams and methodology: [`report.md`](report.md)
 ├── models/                                  # frozen weights + ONNX / MediaPipe assets
 ├── prepared/                                # indexes, pose caches, features (no raw datasets)
 ├── research_results/                        # metrics JSON + plots (locked)
-├── demo_samples/                            # curated World Cup final excerpt
+├── demo_samples/                            # 5 clips for out-of-the-box demo (no dataset download)
 ├── docs/                                    # course brief + notes
 ├── datasets/README.md                       # how to obtain raw videos (folder gitignored)
 ├── report.md                                # full scientific write-up
@@ -178,10 +178,18 @@ Architecture diagrams and methodology: [`report.md`](report.md)
 
 ### Run the GUI
 
+Shipped demo clips (no dataset download needed):
+
+| Dropdown label | File |
+|---|---|
+| World Cup final \| Argentina - France | `demo_samples/world_cup_final.mp4` |
+| CAS-FD foul \| challenge 105 / 128 / 107 | `demo_samples/casfd_foul_*.mp4` |
+| CAS-FD dive \| challenge 101 | `demo_samples/casfd_dive_101.mp4` |
+
 ```text
 Double-click Launch Demo.cmd
-→ select "World Cup final | Argentina - France"
-→ Run analysis → Replay / Open results
+→ select any shipped demo clip
+→ Run analysis → live ops dashboard + Replay / Open results
 ```
 
 Or PowerShell:

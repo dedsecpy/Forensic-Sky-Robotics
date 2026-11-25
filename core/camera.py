@@ -35,6 +35,7 @@ class Camera:
         self.xyz=np.array([0.,-9.,13.])
         self.v=np.zeros(3)
         self.aim=np.array([0.,18.,1.])
+        self.dest=np.array([0.,-9.,13.])
         self.trail=[]
     def step(self,players,pair,alert,dt):
         active=bool(pair) and alert
@@ -63,7 +64,8 @@ class Camera:
         else:
             center=np.r_[np.median([p['xy'] for p in players],axis=0),1.] if players else self.aim
             dest=center+[0,-25,14]
-        delta=dest-self.xyz
+        self.dest=np.asarray(dest,dtype=float)
+        delta=self.dest-self.xyz
         desired=delta*min(1.,7/(np.linalg.norm(delta)+1e-8))
         accel=desired-self.v
         self.v+=accel*min(1.,4*dt/(np.linalg.norm(accel)+1e-8))
