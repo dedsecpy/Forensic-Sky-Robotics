@@ -2,7 +2,7 @@
 
 **Computer Vision (23AID301) — End Semester Project**
 
-Pose- and motion-based football challenge analysis: classify foul vs dive interactions from short clips, forecast foul risk on continuous broadcast halves, and drive a simulated aerial camera toward the threatened player pair.
+Pose- and motion-based football challenge analysis: classify foul vs dive interactions from short clips, forecast foul risk on continuous broadcast halves, and drive a simulated aerial camera toward the threatened player pair — with a live ops dashboard in the desktop demo.
 
 | | |
 |---|---|
@@ -12,22 +12,219 @@ Pose- and motion-based football challenge analysis: classify foul vs dive intera
 | **Final ROC AUC** | **67.1%** |
 | **Report** | [`report.md`](report.md) |
 | **Plots** | [`research_results/plots/`](research_results/plots/) |
+| **Demo clips** | [`demo_samples/`](demo_samples/) (5 videos included) |
 
-> Raw training `datasets/` are **not** in this repository (see [`datasets/README.md`](datasets/README.md)). Code, models, prepared indexes/caches, locked metrics, and **five `demo_samples/` videos** for an immediate GUI demo **are** included.
+> Full training `datasets/` are **not** shipped (see [`datasets/README.md`](datasets/README.md)). Code, frozen models, prepared caches, locked metrics, and **five demo videos** are included so a fresh clone can run the GUI immediately.
 
 ---
 
 ## 1. Highlights
 
-- End-to-end desktop demo with pose overlays + virtual camera replay  
-- Locked two-step CAS-FD evaluation (pre-finetune → final ensemble)  
-- Continuous World Cup half forecasting (honest hard baseline)  
-- Pose (KTH) and camera supporting evaluations  
-- Full metric dumps + PNG figures under `research_results/`
+- Desktop demo with **broadcast + virtual skycam** replay and a **real-time ops dashboard**
+- Soft elevated-risk → hard **FOUL ANTICIPATED** warning, plus skycam **RELOCATING / LOCKED ON** map
+- Locked two-step CAS-FD evaluation (pre-finetune → final soft-ensemble)
+- Continuous World Cup half forecasting reported honestly as a hard baseline
+- Pose (KTH) and camera supporting evaluations
+- Metric dumps + PNG figures under `research_results/`
 
 ---
 
-## 2. Locked results — CAS-FD foul vs dive (primary)
+## 2. System architecture
+
+End-to-end flow from video input through perception, anticipation, virtual camera control, and the demonstration UI.
+
+```mermaid
+flowchart TB
+  subgraph Input["Input"]
+    V["Match clip / broadcast<br/>demo_samples/*.mp4"]
+  end
+
+  subgraph Perception["Perception"]
+    DET["YOLO11n-pose detection"]
+    TRK["Multi-player tracker<br/>+ shot-cut reset"]
+    FEAT["PairHistory features<br/>27-D pairs → 81-D scene"]
+    MP["MediaPipe 3D pose<br/>display landmarks"]
+  end
+
+  subgraph Anticipation["Anticipation"]
+    CTRL["VideoController"]
+    CLIP["Clip track<br/>soft-ensemble / boosted-deep"]
+    CONT["Continuous track<br/>L2 logistic regression"]
+    ALARM["Causal Alarm<br/>threshold + refractory"]
+    HOLD["TargetHold<br/>threatened pair lock"]
+  end
+
+  subgraph Camera["Virtual skycam"]
+    PLAN["Viewpoint planner<br/>clear sightline + motion limits"]
+    SIM["3D pitch / path render"]
+  end
+
+  subgraph Delivery["Demo delivery"]
+    AN["analyze.py<br/>replay.mp4 + telemetry.jsonl"]
+    UI["demo.py GUI<br/>broadcast | skycam"]
+    HUD["Ops dashboard<br/>risk · warning · camera map"]
+    OUT["runs/ summary + incident clip"]
+  end
+
+  V --> DET --> TRK --> FEAT
+  TRK --> MP
+  FEAT --> CTRL
+  CTRL --> CLIP
+  CTRL --> CONT
+  CLIP --> ALARM
+  CONT --> ALARM
+  ALARM --> HOLD
+  HOLD --> PLAN --> SIM
+  TRK --> AN
+  MP --> AN
+  SIM --> AN
+  ALARM --> AN
+  AN --> UI
+  AN --> HUD
+  AN --> OUT
+  UI --- HUD
+```
+
+### Module map
+
+```mermaid
+flowchart LR
+  subgraph Core["core/"]
+    vision["vision · video_pose"]
+    anticipation["anticipation · in_play"]
+    camera["camera"]
+    learning["learning"]
+  end
+
+  subgraph Train["training/"]
+    fit["fit_video.py"]
+    match["match_training.py"]
+  end
+
+  subgraph Eval["evaluation/"]
+    analyze["analyze.py"]
+    demo["demo.py + dashboard.py"]
+    plots["plot_results.py"]
+  end
+
+  subgraph Artifacts["Artifacts"]
+    models["models/*.joblib"]
+    results["research_results/"]
+    samples["demo_samples/"]
+  end
+
+  vision --> anticipation
+  anticipation --> fit
+  anticipation --> match
+  fit --> models
+  match --> models
+  models --> analyze
+  camera --> analyze
+  vision --> analyze
+  analyze --> demo
+  samples --> demo
+  fit --> plots
+  match --> plots
+  plots --> results
+```
+
+**Runtime idea:** perception runs causally on past frames only → a scene score is compared to a frozen threshold → on onset the threatened pair is held and the skycam relocates → every frame is logged to telemetry and mirrored on the ops HUD during live analysis and synced Replay.
+
+Methodology detail: [`report.md`](report.md) §2.
+
+---
+
+## 3. Demo — clone and run
+
+No full dataset download is required for the demonstration.
+
+### 3.1 Prerequisites
+
+| Requirement | Notes |
+|---|---|
+| Windows | GUI uses Tkinter |
+| Python **3.11** | Matches frozen env / `Launch Demo.cmd` |
+| Packages | See [`requirements.txt`](requirements.txt) (install into `.venv`) |
+| FFmpeg | Optional — used only to export short `incident.mp4` clips |
+
+If you use the project `.venv` on Windows with the `uv` CPython build (same pattern as development):
+
+```powershell
+cd "<project-root>"
+python -m venv .venv
+.\.venv\Scripts\pip install -r requirements.txt
+```
+
+### 3.2 One-click GUI
+
+```text
+Double-click  Launch Demo.cmd
+```
+
+Or PowerShell:
+
+```powershell
+cd "<project-root>"
+$env:PYTHONPATH = "$PWD\.venv\Lib\site-packages"
+& "$env:USERPROFILE\AppData\Roaming\uv\python\cpython-3.11-windows-x86_64-none\python.exe" demo.py
+```
+
+If that interpreter path is missing on your machine:
+
+```powershell
+$env:PYTHONPATH = "$PWD\.venv\Lib\site-packages"
+python demo.py
+```
+
+### 3.3 Shipped sample clips
+
+| Dropdown label | File | Role |
+|---|---|---|
+| World Cup final \| Argentina - France | [`demo_samples/world_cup_final.mp4`](demo_samples/world_cup_final.mp4) | Longer broadcast excerpt |
+| CAS-FD foul \| challenge 105 | [`demo_samples/casfd_foul_105.mp4`](demo_samples/casfd_foul_105.mp4) | Foul challenge |
+| CAS-FD foul \| challenge 128 | [`demo_samples/casfd_foul_128.mp4`](demo_samples/casfd_foul_128.mp4) | Foul challenge |
+| CAS-FD foul \| challenge 107 | [`demo_samples/casfd_foul_107.mp4`](demo_samples/casfd_foul_107.mp4) | Foul challenge |
+| CAS-FD dive \| challenge 101 | [`demo_samples/casfd_dive_101.mp4`](demo_samples/casfd_dive_101.mp4) | Dive contrast case |
+
+Catalog notes: [`demo_samples/README.md`](demo_samples/README.md).
+
+### 3.4 What to do in the UI
+
+1. Open the demo (section 3.2).  
+2. Pick a shipped clip from the dropdown (or **Browse MP4**).  
+3. Click **Run analysis**.  
+4. While it runs you should see:
+   - dual pane updating (**BROADCAST** \| **VIRTUAL SKYCAM**)
+   - **Ops dashboard** under the video: foul risk gauge, anticipation warning, skycam status + mini pitch path  
+5. When finished, use **Replay** (frame-synced HUD) or **Open results** (`runs/<timestamp>/`).
+
+### 3.5 What the ops dashboard shows
+
+| Panel | Behaviour |
+|---|---|
+| **Foul risk** | Score vs frozen threshold → `SURVEY` / `ELEVATED` / `ANTICIPATED` |
+| **Anticipation** | Soft elevated risk, then flashing **FOUL ANTICIPATED** on alarm onset/hold with target IDs |
+| **Virtual skycam** | `SURVEY` → `RELOCATING` → `LOCKED ON`, with trail, current position, and destination arrow |
+
+### 3.6 Offline CLI (no GUI)
+
+```powershell
+$env:PYTHONPATH = "$PWD\.venv\Lib\site-packages"
+python analyze.py "demo_samples\world_cup_final.mp4"
+```
+
+Each run writes under `runs/`:
+
+| Artifact | Contents |
+|---|---|
+| `replay.mp4` | Side-by-side broadcast + skycam panel |
+| `telemetry.jsonl` | Per-frame score, alert, camera pose/destination |
+| `summary.json` | Run metadata and alert counts |
+| `incident.mp4` | Optional peak-window extract (needs FFmpeg) |
+
+---
+
+## 4. Locked results — CAS-FD foul vs dive (primary)
 
 **Dataset:** CAS-FD · **Folder (local):** `datasets/cas_fd/`  
 **Protocol:** ≥1 s prefixes · validation-only model/cutoff/threshold selection · single held-out test
@@ -86,7 +283,7 @@ Numeric lock file: [`research_results/locked_clip_results.json`](research_result
 
 ---
 
-## 3. Continuous World Cup forecasting (secondary)
+## 5. Continuous World Cup forecasting (secondary)
 
 **Data:** 7 FIFA WC 2022 second halves · train 4 / val 2 / test **ARG–FRA**  
 **Model:** L2 logistic regression (`C = 0.0005`) · threshold ≈ **0.0184**
@@ -120,7 +317,7 @@ Numeric lock file: [`research_results/locked_clip_results.json`](research_result
 
 ---
 
-## 4. Supporting evaluations
+## 6. Supporting evaluations
 
 ### Pose (KTH Multiview Football II)
 
@@ -136,78 +333,25 @@ Reviewed events: planned view shows **no consistent** advantage over survey/fixe
 
 ---
 
-## 5. How the system works
-
-1. **Pose:** YOLO11n-pose + tracking (2 Hz analysis cadence); MediaPipe for 3D display landmarks  
-2. **Features:** pair separation, closing speed, limb angles/extension, joint confidence, short temporal change → 27-D pairs / 81-D scene  
-3. **Clip model:** soft-ensemble over boosted trees / histograms / logistic learners (final)  
-4. **Continuous model:** L2-regularized logistic regression on broadcast half features  
-5. **Camera:** on alert, lock pair and plan viewpoint under motion limits  
-
-Architecture diagrams and methodology: [`report.md`](report.md)
-
----
-
-## 6. Repository layout
+## 7. Repository layout
 
 ```
 ├── demo.py / analyze.py / Launch Demo.cmd   # entry points
 ├── bootstrap.py                             # module path setup
 ├── core/                                    # pose, features, camera, controllers
 ├── training/                                # fit_video, match_training, …
-├── evaluation/                              # demo UI, metrics, plots
+├── evaluation/                              # demo UI, dashboard, metrics, plots
 ├── data_prep/                               # download / audit / alignment CLIs
 ├── legacy/                                  # older StatsBomb-360 / graph experiments
 ├── models/                                  # frozen weights + ONNX / MediaPipe assets
 ├── prepared/                                # indexes, pose caches, features (no raw datasets)
 ├── research_results/                        # metrics JSON + plots (locked)
-├── demo_samples/                            # 5 clips for out-of-the-box demo (no dataset download)
-├── docs/                                    # course brief + notes
+├── demo_samples/                            # 5 clips for out-of-the-box demo
+├── docs/                                    # course brief + design notes
 ├── datasets/README.md                       # how to obtain raw videos (folder gitignored)
 ├── report.md                                # full scientific write-up
 └── requirements.txt
 ```
-
----
-
-## 7. Quick start (demo)
-
-### Requirements
-- Windows · Python 3.11 · FFmpeg (optional, for incident clips)  
-- Project packages (see `requirements.txt`) in `.venv` or equivalent  
-
-### Run the GUI
-
-Shipped demo clips (no dataset download needed):
-
-| Dropdown label | File |
-|---|---|
-| World Cup final \| Argentina - France | `demo_samples/world_cup_final.mp4` |
-| CAS-FD foul \| challenge 105 / 128 / 107 | `demo_samples/casfd_foul_*.mp4` |
-| CAS-FD dive \| challenge 101 | `demo_samples/casfd_dive_101.mp4` |
-
-```text
-Double-click Launch Demo.cmd
-→ select any shipped demo clip
-→ Run analysis → live ops dashboard + Replay / Open results
-```
-
-Or PowerShell:
-
-```powershell
-cd "<project-root>"
-$env:PYTHONPATH = "$PWD\.venv\Lib\site-packages"
-& "$env:USERPROFILE\AppData\Roaming\uv\python\cpython-3.11-windows-x86_64-none\python.exe" demo.py
-```
-
-Offline analysis:
-
-```powershell
-$env:PYTHONPATH = "$PWD\.venv\Lib\site-packages"
-& "$env:USERPROFILE\AppData\Roaming\uv\python\cpython-3.11-windows-x86_64-none\python.exe" analyze.py "demo_samples\world_cup_final.mp4"
-```
-
-Outputs land in `runs/`.
 
 ---
 
