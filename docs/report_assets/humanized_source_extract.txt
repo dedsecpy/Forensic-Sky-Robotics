@@ -1,0 +1,656 @@
+===PARA 0 [Normal]===
+Pre-cognitive Aerial Camera Repositioning (Spy) based on Spatiotemporal Prediction of Infraction Precursors for Forensic Sky-Robotics (Forensic Cyborg Sky-Robotics)
+===PARA 1 [Normal]===
+A PROJECT REPORT
+===PARA 2 [Normal]===
+Submitted by
+===PARA 3 [Normal]===
+BL.AI.U4AID24078		Aejaz Ahmad Ansari
+===PARA 4 [Normal]===
+BL.AI.U4AID24047		Mutyala Jahnavi Sai has provided this document.
+===PARA 5 [Normal]===
+BL.AI.U4AID24083		Divyesh Shanmugarajah
+===PARA 6 [Normal]===
+
+===PARA 7 [Normal]===
+for the academic achievement of the V Semester course
+===PARA 8 [Normal]===
+COMPUTER VISION (23AID301)
+===PARA 9 [Normal]===
+BACHELOR OF TECHNOLOGY
+===PARA 10 [Normal]===
+IN
+===PARA 11 [Normal]===
+COMPUTER SCIENCE AND ENGINEERING:
+===PARA 12 [Normal]===
+(Artificial Intelligence and Data Science)
+===PARA 13 [Normal]===
+
+===PARA 14 [Normal]===
+
+===PARA 15 [Normal]===
+AMRITA SCHOOL OF COMPUTING, BENGALURU
+===PARA 16 [Normal]===
+AMRITA VISHWA VIDYAPEETHAM
+===PARA 17 [Normal]===
+BENGALURU 560035
+===PARA 18 [Normal]===
+NOVEMBER 2026
+===PARA 19 [Normal]===
+
+===PARA 20 [Normal]===
+ABSTRACT
+===PARA 21 [Normal]===
+One-camera football footage is a disorderly affair. Contact is often a late cut into the broadcast, post closure of players. We created a pipeline that can feed pose and minimal motion history into a short clip, analyze it and compute foul-like challenge scores against dive-like challenges, and that will gently push a simulated aerial camera to the challenged pair when it has an alert. This is our End Semester project of Computer Vision (23AID301).
+===PARA 22 [Normal]===
+The following is how we evaluate: CAS-FD clips are primarily evaluated after duplicate filtering is applied. This is a hold out split of 351:98:95 train:validation:test clips. Features stay causal. Past Frames are used to feed into 27 D pair vectors and 81 D scene vector. No tuning is needed for model and cutoffs. Leaving aside 2 results of a clip: CatBoost boosted-deep with a 1.0 s prefix and soft ensemble with the same cutoff. On the 95-clip test set the ensemble gets 64.2% accuracy, 64.6% balanced accuracy, 60.4% precision, 71.1% recall, F1 0.653, AP 0.650, ROC AUC 0.671. The complete list of comparisons is given in Table 4.2.
+===PARA 23 [Normal]===
+It was also taken for continuous scoring on World Cup Second Halves, it was tested out on Argentina vs France. Sample accuracy seems high as most frames are negative. Event F1 is about 0.061 and ROC AUC about 0.51. There's no way that's a soft song. Not sold as primary product! Additional checks include pose coverage on 'KTH Multiview Football II', and planned and survey camera framing. Five sample videos are provided and the desktop demo dumps the telemetry and replay, while a live ops dashboard is updated during analysis of the video.
+===PARA 24 [Normal]===
+Electronic Computer vision; Foul anticipation; Soft ensemble; Pose estimation; Virtual camera; CAS-FD; Sports broadcast.
+===PARA 25 [Normal]===
+
+===PARA 26 [Normal]===
+TABLE OF CONTENTS
+===PARA 27 [Normal]===
+ABSTRACT	i
+===PARA 28 [Normal]===
+LIST OF FIGURES	ii
+===PARA 29 [Normal]===
+LIST OF TABLES	iii
+===PARA 30 [Normal]===
+CHAPTER 1 - INTRODUCTION	1
+===PARA 31 [Normal]===
+    1.1 Problem background	1
+===PARA 32 [Normal]===
+    1.2 Motivation	2
+===PARA 33 [Normal]===
+    1.3 Objectives	2
+===PARA 34 [Normal]===
+    1.4 Scope and limitations	3
+===PARA 35 [Normal]===
+    1.6 What is in a report?	3
+===PARA 36 [Normal]===
+CHAPTER 2 - LITERATURE REVIEW	4
+===PARA 37 [Normal]===
+    2.1.2 Team Sports – Pose Estimation	4
+===PARA 38 [Normal]===
+    2.3 Shooting and bouncing	14
+===PARA 39 [Normal]===
+    2.3 Anticipation early prediction	5
+===PARA 40 [Normal]===
+    2.5 The use of a camera for music and dance events	8
+===PARA 41 [Normal]===
+    2.5 Summary of gaps	6
+===PARA 42 [Normal]===
+CHAPTER 3 - PROPOSED METHODOLOGY	7
+===PARA 43 [Normal]===
+    3.1 System overview	7
+===PARA 44 [Normal]===
+    3.2 Datasets and splits	8
+===PARA 45 [Normal]===
+    3.3 Perception and features	9
+===PARA 46 [Normal]===
+    3.4 Clip classification protocol	10
+===PARA 47 [Normal]===
+    3.5 Continuous forecasting protocol	11
+===PARA 48 [Normal]===
+    3.6 Virtual camera control	11
+===PARA 49 [Normal]===
+    3.7 Software requirements	12
+===PARA 50 [Normal]===
+    3.8 Hardware requirements	12
+===PARA 51 [Normal]===
+CHAPTER 4 - RESULTS AND DISCUSSION	13
+===PARA 52 [Normal]===
+    4.1 High-level design	13
+===PARA 53 [Normal]===
+    4.2 Low-level design	14
+===PARA 54 [Normal]===
+    4.3 Locked CAS-FD results	15
+===PARA 55 [Normal]===
+    4.4 World Cup results in the continuity of time	17
+===PARA 56 [Normal]===
+    4.6 Supporting pose and camera studies (performance)	20
+===PARA 57 [Normal]===
+    4.6 Demonstration system	19
+===PARA 58 [Normal]===
+CHAPTER 5 - CONCLUSION	20
+===PARA 59 [Normal]===
+    5.1 Summary of findings	20
+===PARA 60 [Normal]===
+    5.2 Contributions	20
+===PARA 61 [Normal]===
+    5.3 Future work	21
+===PARA 62 [Normal]===
+REFERENCES	22
+===PARA 63 [Normal]===
+APPENDIX A - Locked metric files	23
+===PARA 64 [Normal]===
+APPENDIX B - How to run the demo	24
+===PARA 65 [Normal]===
+
+===PARA 66 [Normal]===
+LIST OF FIGURES
+===PARA 67 [Normal]===
+The system architecture (end to end pipeline from README):
+===PARA 68 [Normal]===
+Figure 3.2 Module map (taken from README)
+===PARA 69 [Normal]===
+Overview dashboard of locked evaluations - Figure 4.1
+===PARA 70 [Normal]===
+Figure 4.2 CAS-FD train / validation / test clip counts
+===PARA 71 [Normal]===
+Below you'll find a Locked Step-1 versus Step-2 comparison (Figure 4.3).
+===PARA 72 [Normal]===
+Figure 4.4 is the final soft-ensemble test metrics.
+===PARA 73 [Normal]===
+Figure 4.5 Precision-recall curve (clip test)
+===PARA 74 [Normal]===
+The ROC curve (clip test) is shown in Figure 4.6.
+===PARA 75 [Normal]===
+Figure 4.7 – Confusion matrix (clip test)
+===PARA 76 [Normal]===
+Figure 4.8 Score distributions (clip test):
+===PARA 77 [Normal]===
+This figure shows the sensitivity of prefix.
+===PARA 78 [Normal]===
+Figure 4.10 Confidence intervals for the mean (using bootstrap).
+===PARA 79 [Normal]===
+Figure 4.11 - Continuous sample-level metrics
+===PARA 80 [Normal]===
+As illustrated in Figure 4.12, Continuous event-level metrics are available for this type of event.
+===PARA 81 [Normal]===
+Continuous score timeline (ARG-FRA)
+===PARA 82 [Normal]===
+Fig. 4.14: Pose PCK / coverage on KTH
+===PARA 83 [Normal]===
+A virtual camera’s evaluation is illustrated in Figure 4.15.
+===PARA 84 [Normal]===
+Inquire about the curve pack figurine, and then calculate the anticipated curve.
+===PARA 85 [Normal]===
+
+===PARA 86 [Normal]===
+LIST OF TABLES
+===PARA 87 [Normal]===
+Table 3.1 CAS-FD stored the split counts.
+===PARA 88 [Normal]===
+T able 3.2 Continuous World Cup match splits
+===PARA 89 [Normal]===
+The software stack used in the project is shown as Table 3.3.
+===PARA 90 [Normal]===
+Table 4.1 Locked clip models and cutoffs
+===PARA 91 [Normal]===
+Table 4.2 Comparison of Held-out CAS-FD test
+===PARA 92 [Normal]===
+Table 4.3 The final confusion counts (soft-ensemble)
+===PARA 93 [Normal]===
+Table 4.4 Continuous SAMPLE-LEVEL METRICS (ARG-FRA)
+===PARA 94 [Normal]===
+Table 4.5 Continuous event-level metrics (18 fouls):
+===PARA 95 [Normal]===
+Table 4.7 Demo sample clips which is included in the repository
+===PARA 96 [Normal]===
+
+===PARA 97 [Normal]===
+CHAPTER - 1
+===PARA 98 [Normal]===
+INTRODUCTION
+===PARA 99 [Normal]===
+1.1 Problem background
+===PARA 100 [Normal]===
+Chases the story through broadcast edits changes. The shots are often wide and after the challenge has started are cut to a close-up. This is not ideal for warnings upon contact. Bodies collide into each other. Flood lights cause clashes on colours. Loss of ball/loss of direction of play by the referee. Typically, it is too late to make a good camera move by the time the receiver is in a "clean" tackle situation.
+===PARA 101 [Normal]===
+We divided the work into two tasks. On the short clips we attempt to use pose prefixes and motion prefixes to tell foul-line challenges from dive-line challenges. On Full halves we score uninterrupted and have a virtual "sky cam" when alarm goes on. With the long title, that lens concept is hinted at. Numbers we will uphold as pertinent for the course primarily originate from CAS-FD clip track.
+===PARA 102 [Normal]===
+CAS-FD provides short clips labelled. We hash & perceptual duplicate group so we kept 544 of 600 files processed. There are 95 clips (45 foul, 50 dive) in the test set held out. Only ordinary-play negatives will be included during training for the Quiet SportsD World Cup segments. To conduct continuous work, we have seven second halves of FIFA World Cup 2022 combined and matched to the moments when the ball was won from the opposite side to the stats on StatsBomb Foul Committed.
+===PARA 103 [Normal]===
+1.2 Motivation
+===PARA 104 [Normal]===
+Many Computer Vision assignments of this type only output detection scores. Live production is also interested in the direction in which the camera will look next. A threatened pair is the second early named and will remove a certain amount of body blockage on the replay path if a planned view. We never stop anticipating and still, the anticipation is weak. The clip track will be the one we can back as the splits and thresholds are frozen.
+===PARA 105 [Normal]===
+We wanted something that one could really run. Timing is not indicated on slides. The shipped demo provides broadcast side-by-side with a Pitch simulation, writes telemetry and updates the ops Dashboard while analysis is ongoing. The five sample videos are included in the repo and Launch Demo.cmd works without pulling the full sets once they have a fresh clone.
+===PARA 106 [Normal]===
+1.3 Objectives
+===PARA 107 [Normal]===
+These were the goals we set for this project.
+===PARA 108 [Normal]===
+    1. Create a causal pose+Motion feature pipeline from broadcast or clip video.
+===PARA 109 [Normal]===
+    2. Use only validation for training the foul-versus-dive classifiers and for selecting the cutoff and the threshold.
+===PARA 110 [Normal]===
+    Utilize two clip result from Officials and report full held-out metrics.
+===PARA 111 [Normal]===
+    4. Train a continuous forecaster on World cups halves – implement and report sample and event metrics without spinning.
+===PARA 112 [Normal]===
+    5. Implement a fake aerial camera then move the camera in response to an alarm –?
+===PARA 113 [Normal]===
+1.4 Scope and limitations
+===PARA 114 [Normal]===
+All clips and halves are only analysed offline as they are provided to us. Models are models that are frozen in joblib files. UI is a local demonstration of Tclp. No actual drone. If a calibration file is not present then pitch layout will be approximate. There aren't many continuous positives out there (47 out of 6,375 ARG-FRA frames) and there's no point in having an accuracy headline alone. Of the one matched continuous alert examined, contact was already in progress. Lead in time is not intrinsically anticipation.
+===PARA 115 [Normal]===
+We ignore early clip experiments, which pre-date Step 1, continuous candidates which did not pass their validation selection, as well as demo clips not on the official held out split.
+===PARA 116 [Normal]===
+1.5 Organisation of the report
+===PARA 117 [Normal]===
+Chapter 2 presents work done in the fields of pose, foul recognition, anticipation and sports cameras. Chapter 3 covers data, features, training, camera controls and software stack. Chapter 4 contains the designs, locked results, plots and the demo. Chapter 5 wraps up. These references are in IEEE format. The appendices refer to the metric files and running the demo.
+===PARA 118 [Normal]===
+
+===PARA 119 [Normal]===
+CHAPTER - 2
+===PARA 120 [Normal]===
+LITERATURE REVIEW
+===PARA 121 [Normal]===
+2.1 Team Sports Pose Estimation
+===PARA 122 [Normal]===
+The pose(s) for the work were transferred from older part models into deep keypoints, suitable for fast speed of demonstration (includegraphics/fast.png). YOLO style pose heads were used since boxing and joints of multiple players are obtained from a single sweep. When we only analyse a few frames per second, MediaPipe Pose Landmarker can add more dense 3D landmarks within a box to aid the display and leg-motion estimation.
+===PARA 123 [Normal]===
+The difference between the close-up view and the view from a long distance are evident in KTH Multiview Football II. Close up makes up limbs that get lost in a wide. Sliding tackling is still painful due to overlap and blur. Our pose check had the same result: When we combined close up detections with wide, coverage increased, but tackle frames remained unclean.
+===PARA 124 [Normal]===
+2.2 recognition of action and foul
+===PARA 125 [Normal]===
+One of the most common types of foul paper format is the trimmed clips and clear labels. CAS-FD grades fouls versus dives, which is similar to what match review debates. When it comes to a whole clip its possible with big spatiotemporal nets but those are huge for a semester build, and they don't show which players mattered. We continued to use pose graphs and kinematics. Separation, closing speed and limb extension are more straightforward.
+===PARA 126 [Normal]===
+The clip track is based on tabular learners on cached pose features: boosted trees, histograms, and logistic members. Makes it easy to check thresholding / soft average against validation AP.
+===PARA 127 [Normal]===
+In this section, the agent learns how to anticipate and early predict the responses to the prosodic features.
+===PARA 128 [Normal]===
+There will be anticipation here, since it depends only on past evidence to make the scoring. On continuous halves the positive window is thin. If a teammate can beat us to a rebound between 0.75 and 2.00 s before StatsBomb Foul Committed, then we aren't getting many rebounds per minute created. Models that appear great on the balanced clips might not hold up the same manner during the ordinary play. Refractory gaps, rearm after the score falls out of range were needed in the alarm logic, otherwise the system chattered.
+===PARA 129 [Normal]===
+For validation halves, we selected the model and threshold utilizing $F1$ by the event, with the maximum number of false-alerts kept at one false-alert per minute. Then we froze that threshold, for ARG-FRA. Event F1 landed near 0.061 and AUC near 0.51. Those would seem to be other hard anticipation baselines. There's a long way to the clip-scores.
+===PARA 130 [Normal]===
+2.4 Planning sports shots with the camera
+===PARA 131 [Normal]===
+Automated cameramen will typically follow the ball/piece of group of players unless they get lost. Of the systems few are associated with fouls pre-cursors. A Skycam is planned with views that maintain a clear sightline. The typical costs are combinations of blockage, travel distance and projected view separation. Motion limits are used to prevent the camera from jumping from one optimum setting to another on each successive frame.
+===PARA 132 [Normal]===
+We grab camera samples of candidates in a radial direction around the point that we think is the pair, then order the samples by degree of obstruction and separation, then slowly increase the camera's velocity toward the selected sample. For the contact brackets that we examined, expected framing did not consistently outperform the approaches of survey or fixed view. It was uncommon for 'early alerts' to be given. We still retained the planner since the demo requires a visual relocate when the clip alarm is sounded.
+===PARA 133 [Normal]===
+2.5 Summary of gaps
+===PARA 134 [Normal]===
+There are many foul classifiers which do not use a clean causal prefix protocol on a named test split, with frozen cutoffs and a complete confusion table. Sample accuracy sometimes arises first when dealing with continuous papers that are imbalanced by class. Logged airplane course of flight is often ignored in camera papers. All the pieces are placed in a single repo: locked metrics, plots, models, and a demo class that students can take and do.
+===PARA 135 [Normal]===
+
+===PARA 136 [Normal]===
+CHAPTER - 3
+===PARA 137 [Normal]===
+PROPOSED METHODOLOGY
+===PARA 138 [Normal]===
+3.1 System overview
+===PARA 139 [Normal]===
+The complete path that we took is shown in Figure 3.1. Video is fed to the YOLO11n-pose and tracker. PairHistory is a tool to add pair and scene features. The clip score or continuous score is produced by a clip or continuous scorer. Alarm compares that score against the frozen threshold and TargetHold retains the threatened pair for a brief period of time. Camera plans a way point and places the skycam beside the annotated broadcast; analyze.py writes the numbers to replay.mp4 file and telemetry.jsonl, which are displayed on the ops dashboard using demo.py.
+===PARA 140 [Normal]===
+
+===PARA 141 [Normal]===
+The system architecture is depicted in a simplified manner in figure 3.1, which is a mermaid diagram taken from the README.md on Github.
+===PARA 142 [Normal]===
+Figure 3.1 shows the progression of video going through perception & anticipation, and then to the skycam and the demo path: analyze.py, GUI, ops dashboard, and runs/ folder.
+===PARA 143 [Normal]===
+
+===PARA 144 [Normal]===
+This is the module map in figure 3.2 (from README.md in Mermaid).
+===PARA 145 [Normal]===
+The training/ folder map is as given in Fig.3.2. We ship our models in frozen form in the following directories: evaluation/. models, research_results/, and demo_samples/.
+===PARA 146 [Normal]===
+3.2 Datasets and splits
+===PARA 147 [Normal]===
+The CAS-FD split after duplicate filtering is shown in Table 3.1. The match assignment is the continuous match assignment of the table 3.2. The positive continuous frames occur 0.75-2.00 s in front of a StatsBomb Foul Committed time. Pre-match, half-time and unmatched clock are periods that are dropped from the windows.
+===PARA 148 [Normal]===
+Remove	scissors	Steal	plunge
+===PARA 149 [Normal]===
+Train	351	151	200
+===PARA 150 [Normal]===
+Validation	98	48	50
+===PARA 151 [Normal]===
+Test (held-out)	95	45	50
+===PARA 152 [Normal]===
+Total retained	544	-	-
+===PARA 153 [Normal]===
+Raw processed	600	-	-
+===PARA 154 [Normal]===
+
+===PARA 155 [Normal]===
+Table 3.1: Split counts for CAS-FD were retained
+===PARA 156 [Normal]===
+Role	Matches
+===PARA 157 [Normal]===
+klany	BRA-SUI: ESP-CRC: FRA-AUS: SRB-SUI
+===PARA 158 [Normal]===
+Validation	FRA-DEN, CRC-GER
+===PARA 159 [Normal]===
+Test	ARG-FRA final (47 positives / 18 fouls / 6375 samples)
+===PARA 160 [Normal]===
+
+===PARA 161 [Normal]===
+Table 3.2 Splits in Continuous World Cup Game versions
+===PARA 162 [Normal]===
+3.3 Perception and features
+===PARA 163 [Normal]===
+Detection is YOLO11n-pose. The tracker maintains the ids for the analysis cadence (currently 2 Hz, which is the cadence of clip feature caching). Regarding track clearing: A shot-cut reset clears tracks if the histogram jumps. Tracking close player detections automatically fills out to match wide track shots. We construct a 27-D vector from these six values for up to eight neighboring pairs. Those pairs are collected in an 81-D scene vector. Future frames, event names, label on files, and scoreboard time are not included in the feature vector.
+===PARA 164 [Normal]===
+If confidence is high enough, MediaPipe provides 3D landmarks for each box, relative to the hips. During alerts leg-motion magnitudes assist camera in focusing. In absence of 3D pose, the skycam revert to a plain stick figure.
+===PARA 165 [Normal]===
+3.4 Clip classification protocol
+===PARA 166 [Normal]===
+We decode clips at 2 Hz, while caching pose or pairs at 2 Hz. Prefix samples use cutoffs of 1.0, 1.5, or 2.0 s. Train split prefixes are used for training with multi time augmentations. Only the validation selects the model family, cutoff and threshold. The threshold is set to increase the poorest value of accuracy, balanced accuracy, F1, precision, recall in the validation. On top of boosted and soft-ensemble, we remain close to the optimum validation AP band. The 95 clip test set is scored one time.
+===PARA 167 [Normal]===
+Takes CatBoost boosted-deep for Step 1 with lock 1.0 s. The 1.0 s lock of Step 2 is the soft ensemble (CatBoost, tree and logistic probabilities). Caution: We don't tune on the test set.
+===PARA 168 [Normal]===
+3.5 Continuous forecasting protocol
+===PARA 169 [Normal]===
+The training is on 4 halves. Two validation halves decide on model and threshold based on event F1 with 1 false alert per minute as tie-break, AP. The best result is that of L2 logistic regression (C = 0.0005, threshold = 0.018414). There is only one test for ARG-FRA. If a score that is below the threshold is obtained, it will alarm at the rest of the times and maintains a 2-second refractory interval. State is reset when there is a time gap or when shots change.
+===PARA 170 [Normal]===
+3.6 Virtual camera control
+===PARA 171 [Normal]===
+When the alert is activated the camera make a number of samples at two altitudes around the mean future location of the pair. Each candidate pays when two targets get in line in the projected sightline, and receives a credit when the two move apart in sightline. Velocity 'drives' towards the lowest cost target whilst always obeying the limits of acceleration. No warning, camera scans back over a large area of the median cluster. Trails and destinations are sent to the map in the dashboard.
+===PARA 172 [Normal]===
+3.7 Software requirements
+===PARA 173 [Normal]===
+Component	Version / note
+===PARA 174 [Normal]===
+Python	3.11
+===PARA 175 [Normal]===
+OpenCV	opencv-contrib-python 5.x
+===PARA 176 [Normal]===
+Very easy to pose, motion, personification etcfrom a YOLO11n-pose ONNX file.
+===PARA 177 [Normal]===
+Using	scikit-learn, CatBoost, joblib
+===PARA 178 [Normal]===
+Library of functions used for developing Demo UI		Tkinter, Pillow
+===PARA 179 [Normal]===
+Optional	FFmpeg to export incident.mp4
+===PARA 180 [Normal]===
+Installation: OS for GUI: Windows (Launch Demo.cmd)
+===PARA 181 [Normal]===
+
+===PARA 182 [Normal]===
+Software stack applied in the project:
+===PARA 183 [Normal]===
+3.8 Hardware requirements
+===PARA 184 [Normal]===
+Training and plotting was done on a regular Windows computer. Pose extraction is performed with the help of a CUDA GPU; otherwise if the CUDA GPU is not available the extraction is performed with the Scout('CPU'). When the models are frozen, then the demo runs on CPU. If you download a dataset it consumes disk. Among the public repo are models, demo_samples, research_results and caches, rather than raw training video.
+===PARA 185 [Normal]===
+
+===PARA 186 [Normal]===
+CHAPTER - 4
+===PARA 187 [Normal]===
+RESULTS AND DISCUSSION
+===PARA 188 [Normal]===
+4.1 High-level design
+===PARA 189 [Normal]===
+Video moves to perception, then onto clip / continuous scoring, and later, drive camera motion / UI telemetry is alerted. Figure 4.1 provides an overview of the locked evaluations in one slide for review.
+===PARA 190 [Normal]===
+
+===PARA 191 [Normal]===
+Locked evaluations overview dashboard (Figure 4.1):
+===PARA 192 [Normal]===
+In figure 4.1 the clip and continuous headline measures are side by side. Read continuous panel as a baseline. The primary result is the clip panel.
+===PARA 193 [Normal]===
+4.2 Low-level design
+===PARA 194 [Normal]===
+Vision.py and video_pose.py detect/track at the file level. Anticipation.py and in_play.py contain PairHistory and BroadcastFeatures, along with Alarm and TargetHold. Vision controller.py loads the frozen models and returns score Plus ranked Pair. Seeing camera.py search for destinations, and render, in conjunction with Analyze.py running a clip, writing 1280x418 panels and streaming a compact telemetry. Dashboard.py draws risk Warning, plus the skycam map.
+===PARA 195 [Normal]===
+Clips are plotted in Figure 4.2 according to split and class. There's a bit of uneveneness about it (151 foul vs 200 dive). There are almost equal number of test set and training sets (45 vs 50).
+===PARA 196 [Normal]===
+
+===PARA 197 [Normal]===
+Figure 4.2 shows the number of clips used for training/validation/testing for the CAS-FD.
+===PARA 198 [Normal]===
+4.3 Locked CAS-FD results
+===PARA 199 [Normal]===
+1	PTNSLN	R	Pupil Name and School Number
+===PARA 200 [Normal]===
+1.0 s	Pre-finetune baseline	1	boosted-deep (CatBoost)
+===PARA 201 [Normal]===
+3	view(soft-ensemble,1.0:soft)	1.0 s	Final, locked classifier
+===PARA 202 [Normal]===
+
+===PARA 203 [Normal]===
+The following information shows the locked clip models and cutoffs.
+===PARA 204 [Normal]===
+Compared to the held out base, Table 4.2. Step 2 makes improvements to accuracy, balanced accuracy, precision, recall, F1 and AP. The increase of the recall and F1 scores at the selected threshold comes at the cost of the decrease in ROC AUC to 0.671 as opposed to 0.676. Those are plotted side by side in Figure 4.3.
+===PARA 205 [Normal]===
+Metric:	Step 1 boosted-deep	Step 2 soft-ensemble (final)
+===PARA 206 [Normal]===
+Accuracy	63.2%	64.2%
+===PARA 207 [Normal]===
+Balanced accuracy	63.3%	64.6%
+===PARA 208 [Normal]===
+Precision	60.0%	60.4%
+===PARA 209 [Normal]===
+Recall	66.7%	71.1%
+===PARA 210 [Normal]===
+F1	0.632	0.653
+===PARA 211 [Normal]===
+Average precision (AP)	0.638	0.650
+===PARA 212 [Normal]===
+ROC AUC	0.676	0.671
+===PARA 213 [Normal]===
+
+===PARA 214 [Normal]===
+Table 4.2 Test comparison Held-out CAS-FD (95 clips)
+===PARA 215 [Normal]===
+
+===PARA 216 [Normal]===
+A locked Step-1 – Step-2 comparison is shown in figure 4.3.
+===PARA 217 [Normal]===
+The Step-2 lift in the classification metrics is displayed in Figure 4.3: Final values are approximately in the 60%-71% range for the entire official test split. We were looking for anything between there.
+===PARA 218 [Normal]===
+
+===PARA 219 [Normal]===
+Final soft-ensemble test metrics are shown in figure 4.4.
+===PARA 220 [Normal]===
+The last ensemble alone is shown in figure 4.4. About 0.32825 at 1.0 sec. is operating out point.
+===PARA 221 [Normal]===
+
+===PARA 222 [Normal]===
+The figure also illustrates a precision-recall curve (also known as a clip test).
+===PARA 223 [Normal]===
+Figure 4.5 shows the precision/recall curve of the 95-clip test set. The Average Precision of final model locked is 0.650.
+===PARA 224 [Normal]===
+
+===PARA 225 [Normal]===
+Figure 4.6 shows the ROC curve (clip test).
+===PARA 226 [Normal]===
+Figure 4.6 gives ROC AUC 0.671. Only moderate ranking. We consider recall on the foul class to be more valuable, so we set the threshold accordingly.
+===PARA 227 [Normal]===
+	Predicted dive / neg	Predicted foul / pos
+===PARA 228 [Normal]===
+True dive / neg	29	21
+===PARA 229 [Normal]===
+True foul / pos	13	32
+===PARA 230 [Normal]===
+
+===PARA 231 [Normal]===
+Table 4.3 Final Confusion counts (soft-ensemble)
+===PARA 232 [Normal]===
+
+===PARA 233 [Normal]===
+Figure 4:7 Confusion Matrix (clip test)
+===PARA 234 [Normal]===
+32 true foul catches, 13 miss caught, 21 diving false alarms, 29 dive negator correct (Table 4.3 and Figure 4.7). If someone used this for review false alarms would still be an annoyance.
+===PARA 235 [Normal]===
+
+===PARA 236 [Normal]===
+Figure 4.8 Score distributions (clip test)
+===PARA 237 [Normal]===
+There is an overlap in the scores of the classes as seen in figure 4.8. Some separation but not enough, giving an accuracy in the mid-60s.
+===PARA 238 [Normal]===
+
+===PARA 239 [Normal]===
+Figure 4.9 shows the sensitivity study of prefix applied at start of words.
+===PARA 240 [Normal]===
+Figure 4.9 compares cutoffs. The validation picked 1.0 s for both locked steps. Longer prefixes, give motion history and also come closer to contact, so anticipation will mean something else.
+===PARA 241 [Normal]===
+
+===PARA 242 [Normal]===
+The left panel shows 95% confidence intervals, while the right displays 95% nonparametric confidence intervals.
+===PARA 243 [Normal]===
+Bootstrap intervals are shown for the test metrics in figure 4.10. The intervals are wide for there are only 95 clips. Ensemble vs Small Step-1 vs Step-2 should not be over-read when there is a small gap between Step-1 and Step-2 and the point estimates favour the ensemble.
+===PARA 244 [Normal]===
+The results of the Continuous World Cup are shown below:
+===PARA 245 [Normal]===
+The ARG-FRA continuous test is reported in tables 4.4 and 4.5. Sample accuracy is 98.6% which is largely due to class imbalance. Balanced accuracy is 0.507 and AP is 0.0106. Over 18 fouls we had 1 correct call, 14 false calls and 17 missed calls. Event F1 is 0.061. At the frozen threshold 0.264 false alerts are generated per minute.
+===PARA 246 [Normal]===
+Metric	Value
+===PARA 247 [Normal]===
+Samples / positives	6375 / 47
+===PARA 248 [Normal]===
+Accuracy	98.6% (imbalance-dominated)
+===PARA 249 [Normal]===
+Balanced accuracy	0.507
+===PARA 250 [Normal]===
+Precision / Recall / F1	0.024 / 0.021 / 0.022
+===PARA 251 [Normal]===
+AP	0.0106
+===PARA 252 [Normal]===
+ROC AUC	0.510
+===PARA 253 [Normal]===
+
+===PARA 254 [Normal]===
+Table 4.4 Continuous sample level metrics (ARG-FRA)
+===PARA 255 [Normal]===
+Metric	Value
+===PARA 256 [Normal]===
+Matched / false / missed	1 / 14 / 17
+===PARA 257 [Normal]===
+Event precision	6.7%
+===PARA 258 [Normal]===
+Event recall	5.6%
+===PARA 259 [Normal]===
+Event F1	0.061
+===PARA 260 [Normal]===
+False alerts / min	0.264
+===PARA 261 [Normal]===
+Services: Time lag before event-log time (single match)	1.21 s
+===PARA 262 [Normal]===
+
+===PARA 263 [Normal]===
+Table 4.5 – Continuous event-level metrics (18 fouls)
+===PARA 264 [Normal]===
+
+===PARA 265 [Normal]===
+Note: Figure 4.11 Continuous sample-level metrics shows what this word in the passage corresponds to.
+===PARA 266 [Normal]===
+
+===PARA 267 [Normal]===
+Continuous Event Level Metrics - Figure 4.12
+===PARA 268 [Normal]===
+In the same manner as in the previous figures, the numbers that are connected are shown to be the same in Figures 4.11 and 4.12. If anyone asks about that track bring them up in viva.
+===PARA 269 [Normal]===
+
+===PARA 270 [Normal]===
+Figure 4.13 Continuous score timeline (ARG-FRA)
+===PARA 271 [Normal]===
+Score and foul markers vs match time as plotted in Figure 4.13. In our threshold, peaks are rarely taken at the events marked (low event recall); also, peaks are rarely put at the annotated events (low peak recall).
+===PARA 272 [Normal]===
+4.5 Supporting pose/camera studies
+===PARA 273 [Normal]===
+
+===PARA 274 [Normal]===
+The pose of figure 4.14 is PCK / coverage on KTH.
+===PARA 275 [Normal]===
+Over sequences of runs, coverage has been increased when feeding in close-up detections with wide-field tracks, as illustrated in Figure 4.14. Sliding-tackle frames remain stiff. That's why analyze.py maintains a two pass detection path.
+===PARA 276 [Normal]===
+
+===PARA 277 [Normal]===
+Figure 4.15 Virtual camera evaluation
+===PARA 278 [Normal]===
+Planned, survey and fixed cameras is a comparison on events reviewed, as shown in Figure 4.15. The victory for Planned wasn't clean. Early alerts were very limited and the planner was infrequently granted a clean precursor window. We still use it in the demo – relocate is still available when clip alarm occurs.
+===PARA 279 [Normal]===
+
+===PARA 280 [Normal]===
+Figure 4.16 Anticipation Curve pack
+===PARA 281 [Normal]===
+The anticipation curve pack was retrieved from the paper-style export as shown in figure 4.16. It maintains the discussion of rank with regard to one number together with Figures 4.5 and 4.6.
+===PARA 282 [Normal]===
+4.6 Demonstration system
+===PARA 283 [Normal]===
+Five example clips are listed in the desktop demo (Table 4.6) that were shipped with it. Run analysis provides loading of pose and forecast models, streaming of progress and updating of ops dashboard at a capped-rate to ensure UI usability. Later, Replay "lines" each frame of replay.mp4 with telemetry.jsonl. The current foul risk to threshold, soft elevated foul risk versus threshold versus hard foul onset warning, and skycam states (SURVEY, RELOCATING, and LOCKED ON) are indicated on a mini pitch map on the dashboard.
+===PARA 284 [Normal]===
+Dropdown label	File
+===PARA 285 [Normal]===
+World Cup final | Argentina - France	demo_samples/world_cup_final.mp4
+===PARA 286 [Normal]===
+CAS-FD foul | challenge 105	demo_samples/casfd_foul_105.mp4
+===PARA 287 [Normal]===
+CAS-FD foul | challenge 128	demo_samples/casfd_foul_128.mp4
+===PARA 288 [Normal]===
+CAS-FD foul | challenge 107	demo_samples/casfd_foul_107.mp4
+===PARA 289 [Normal]===
+CAS-FD dive | challenge 101	demo_samples/casfd_dive_101.mp4
+===PARA 290 [Normal]===
+
+===PARA 291 [Normal]===
+Table 4.6 German sound clips provided as a demo sample with the repository.
+===PARA 292 [Normal]===
+Outputs are done to runs/<timestamp>/: replay.mp4, telemetry.jsonl, summary.json, and incident.mp4, when FFmpeg is installed. Launch Demo.cmd sets PYTHONPATH to project virtualenv's site-packages and runs demo.py.
+===PARA 293 [Normal]===
+
+===PARA 294 [Normal]===
+CHAPTER - 5
+===PARA 295 [Normal]===
+CONCLUSION
+===PARA 296 [Normal]===
+5.1 Summary of findings
+===PARA 297 [Normal]===
+The locked soft ensemble is around 64% accuracy, 65% F1, 71% recall, 60% precision, 65% AP and 67% ROC AUC at a prefix of 1.0 s on the held-out CAS-FD test set. Step 1 boost-deep is already done, to the extent of around 60%. Step 2 enhances the majority of the evaluation measures for classification. The intention of continuous foul anticipation on ARG-FRA is still close to chance based on the event metrics and is offered as unfinished work. Fusion corrections for pose improved with closets of the fusion. Camera gains were not uniform on the events that we viewed.
+===PARA 298 [Normal]===
+5.2 Contributions
+===PARA 299 [Normal]===
+    Proposal of models for causal pose, selection of models and thresholds for foul versus dive clips.
+===PARA 300 [Normal]===
+    7. Two locked clip results (boosted-deep and soft-ensemble) along with tables, curves and confusion counts.
+===PARA 301 [Normal]===
+    8. A constant world cup assessment, providing both event and sample numbers.
+===PARA 302 [Normal]===
+    9. A virtual skycam associated with alerts and a desktop demonstration with 5 example clips and a live ops dashboard.
+===PARA 303 [Normal]===
+5.3 Future work
+===PARA 304 [Normal]===
+However, there is a need for improved positive modelling of continuous models and an improved multi-view calibration. The camera policies that are subject to visibility can be worth trying. For example, use temporal transformers on pose tracks might increase the clip scores but only if we've got the compute – and we have to continue the validation-only selection. If one used a per-clip pitch homography then one would increase the skycam geometry. A real UAV should not be flown within this course deliverable.
+===PARA 305 [Normal]===
+
+===PARA 306 [Normal]===
+REFERENCES
+===PARA 307 [Normal]===
+[1] G. Jocher et al., "Ultralytics YOLO", GitHub repository, 2024. [Online]. Available: https://github.com/ultralytics/ultralytics
+===PARA 308 [Normal]===
+[C. Luguesi et al., "MediaPipe: A framework for building perception pipelines," arXiv:1906.08172, 2019.]
+===PARA 309 [Normal]===
+[3] L. Prokhorenkova, G. Gusev, A. Vorobev, A. V. Dorogush, and A. Gulin, "CatBoost: unbiased boosting with categorical features," in Proc. of the Advances in Information Security (ACSAC 2020), 2020, pp. 404–413. NeurIPS, 2018.
+===PARA 310 [Normal]===
+scikit-learn: machine learning in Python F. Pedregosa et al., JMLR 12: 2825-2830, 2011.
+===PARA 311 [Normal]===
+[5] GitHub repository: StatsBomb Open Data. [Online]. Available: https://github.com/statsbomb/open-data
+===PARA 312 [Normal]===
+[6] J. H. et al., Cas-fd-foulversusdive-dataset. [Online]. Available: https://huggingface.co/datasets/jahid114593/foul-vs-dive-dataset
+===PARA 313 [Normal]===
+A. Wu et al., (2021), "SportsD", Hugging Face Datasets. [Online]. Available: https://huggingface.co/datasets/addisonwu05/sportsd
+===PARA 314 [Normal]===
+V. Kazemi, M. Burenius, H. Azizpour, J. Sullivan et al., "Multi-view body part recognition with random forests," Proc. BMVC, 2013. Football context: (KTH Multiview Football context)
+===PARA 315 [Normal]===
+Simple online and realtime tracking," in Proc. ICIP, 2016.
+===PARA 316 [Normal]===
+[10] Amrita Vishwa Vidyapeetham, Course 23AID301, Computer Vision, V semester project guideline 2026, computing by School of Computing, Bengaluru.
+===PARA 317 [Normal]===
+Stop that! Work repository: Forensic Sky-Robotics. [Online]. Available: https://github.com/dedsecpy/Forensic-Sky-Robotics
+===PARA 318 [Normal]===
+OpenCV team, OpenCV Library documentation, http://opencv.willow garage.com/documentation/, 2012. [Online]. Available: https://docs.opencv.org/
+===PARA 319 [Normal]===
+
+===PARA 320 [Normal]===
+APPENDIX A
+===PARA 321 [Normal]===
+Locked metric files
+===PARA 322 [Normal]===
+From under research_results/, locked_clip_results.json contains Step-1, Step-2 results headings, while the complete dumps are contained in video_metrics.json / continuous_metrics.json. The plots in chapter 4 are located in research_results/plots/. Models are models/video_anticipation.joblib and models/match_anticipation.joblib. report.md is the write up version for the Github audience.
+===PARA 323 [Normal]===
+
+===PARA 324 [Normal]===
+APPENDIX B
+===PARA 325 [Normal]===
+How to run the demo
+===PARA 326 [Normal]===
+Clone the repo. Integrate requisite into Python 3.11. Double-click Launch Demo.cmd (on Windows) or set PYTHONPATH to .venv\Lib\site-packages and run python demo.py, select a clip that was shipped, click Run analysis, review the ops dashboard, and then use Replay or Open results. Offline: python analyze.py demo_samples\world_cup_final.mp4. Only you have to use the complete datasets if you want to retrain.
+===PARA 327 [Normal]===
+Aejaz Ahmad Ansari (BL.AI.U4AID24078), Mutyala Jahnavi Sai (BL.AI.U4AID24047), Divyesh Shanmugarajah (BL.AI.U4AID24083) are the authors listed on the title page. The README Mermaid diagrams have been exported as PNG (A4) (see figures 3.1 and 3.2).

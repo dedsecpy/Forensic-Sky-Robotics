@@ -1,0 +1,38 @@
+flowchart LR
+  subgraph Core["core/"]
+    vision["vision · video_pose"]
+    anticipation["anticipation · in_play"]
+    camera["camera"]
+    learning["learning"]
+  end
+
+  subgraph Train["training/"]
+    fit["fit_video.py"]
+    match["match_training.py"]
+  end
+
+  subgraph Eval["evaluation/"]
+    analyze["analyze.py"]
+    demo["demo.py + dashboard.py"]
+    plots["plot_results.py"]
+  end
+
+  subgraph Artifacts["Artifacts"]
+    models["models/*.joblib"]
+    results["research_results/"]
+    samples["demo_samples/"]
+  end
+
+  vision --> anticipation
+  anticipation --> fit
+  anticipation --> match
+  fit --> models
+  match --> models
+  models --> analyze
+  camera --> analyze
+  vision --> analyze
+  analyze --> demo
+  samples --> demo
+  fit --> plots
+  match --> plots
+  plots --> results

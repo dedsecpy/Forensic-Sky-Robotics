@@ -1,0 +1,49 @@
+flowchart TB
+  subgraph Input["Input"]
+    V["Match clip / broadcast<br/>demo_samples/*.mp4"]
+  end
+
+  subgraph Perception["Perception"]
+    DET["YOLO11n-pose detection"]
+    TRK["Multi-player tracker<br/>+ shot-cut reset"]
+    FEAT["PairHistory features<br/>27-D pairs → 81-D scene"]
+    MP["MediaPipe 3D pose<br/>display landmarks"]
+  end
+
+  subgraph Anticipation["Anticipation"]
+    CTRL["VideoController"]
+    CLIP["Clip track<br/>soft-ensemble / boosted-deep"]
+    CONT["Continuous track<br/>L2 logistic regression"]
+    ALARM["Causal Alarm<br/>threshold + refractory"]
+    HOLD["TargetHold<br/>threatened pair lock"]
+  end
+
+  subgraph Camera["Virtual skycam"]
+    PLAN["Viewpoint planner<br/>clear sightline + motion limits"]
+    SIM["3D pitch / path render"]
+  end
+
+  subgraph Delivery["Demo delivery"]
+    AN["analyze.py<br/>replay.mp4 + telemetry.jsonl"]
+    UI["demo.py GUI<br/>broadcast | skycam"]
+    HUD["Ops dashboard<br/>risk · warning · camera map"]
+    OUT["runs/ summary + incident clip"]
+  end
+
+  V --> DET --> TRK --> FEAT
+  TRK --> MP
+  FEAT --> CTRL
+  CTRL --> CLIP
+  CTRL --> CONT
+  CLIP --> ALARM
+  CONT --> ALARM
+  ALARM --> HOLD
+  HOLD --> PLAN --> SIM
+  TRK --> AN
+  MP --> AN
+  SIM --> AN
+  ALARM --> AN
+  AN --> UI
+  AN --> HUD
+  AN --> OUT
+  UI --- HUD

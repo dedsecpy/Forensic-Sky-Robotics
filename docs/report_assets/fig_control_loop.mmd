@@ -1,0 +1,7 @@
+flowchart TB
+  S[Scene score at time t] --> T{Compare to threshold}
+  T -->|onset| H[TargetHold threatened pair]
+  T -->|below| U[Survey / wide orbit]
+  H --> C[Plan clear destination]
+  C --> R[Render virtual skycam]
+  U --> R
